@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Subtitling Video Player</title>
+  <style>
+    /* Global reset & fonts */
+    * {
+      margin: 0; 
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1f22;
+      color: #ffffff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top navbar */
+    #topbar {
+      height: 50px;
+      background-color: #2f3136;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid #222426;
+    }
+    #appTitle {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .topbar-icon {
+      margin-left: auto;
+      cursor: pointer;
+      font-size: 20px;
+      color: #a3a6aa;
+      margin-right: 15px;
+    }
+    .topbar-icon:hover {
+      color: #ffffff;
+    }
+
+    /* Main container: left sidebar + main content */
+    #mainContainer {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left sidebar */
+    #sidebar {
+      width: 300px;
+      background-color: #2f3136;
+      border-right: 1px solid #222426;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    #sidebar h2 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #dddddd;
+    }
+    .preset-tile {
+      background-color: #3a3c40;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .preset-tile:hover {
+      background-color: #46484c;
+    }
+    .preset-title {
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .preset-description {
+      font-size: 12px;
+      color: #a3a6aa;
+    }
+
+    /* Main content area */
+    #contentArea {
+      flex: 1;
+      background-color: #1e1f22;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Video container */
+    #videoContainer {
+      width: 70%;
+      max-width: 1000px;
+      position: relative;
+      border: 2px solid #40444b;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      background-color: black;
+    }
+
+    /* Subtitle overlay (optional if you do live subtitles) */
+    #subtitleOverlay {
+      position: absolute;
+      bottom: 10%;
+      width: 100%;
+      text-align: center;
+      font-size: 20px;
+      color: #ffffff;
+      text-shadow: 2px 2px 4px #000000;
+      pointer-events: none;
+    }
+
+    /* Footer or bottom controls if needed */
+    #footer {
+      height: 40px;
+      background-color: #2f3136;
+      border-top: 1px solid #222426;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+    }
+    #openFileBtn {
+      background: #5865f2;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #openFileBtn:hover {
+      background: #4752c4;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Top navbar -->
+  <div id="topbar">
+    <div id="appTitle">Live Subtitles</div>
+    <!-- optional icons on the right -->
+    <div class="topbar-icon">⚙</div>
+    <div class="topbar-icon">🔔</div>
+  </div>
+
+  <!-- Main container with sidebar + content -->
+  <div id="mainContainer">
+    <!-- Left sidebar with presets or controls -->
+    <div id="sidebar">
+      <h2>Presets Gallery</h2>
+      <div class="preset-tile">
+        <div class="preset-title">Artistic</div>
+        <div class="preset-description">Vibrant text color</div>
+      </div>
+      <div class="preset-tile">
+        <div class="preset-title">Minimal</div>
+        <div class="preset-description">Small font, low distraction</div>
+      </div>
+      <div class="preset-tile">
+        <div class="preset-title">Bold & Large</div>
+        <div class="preset-description">High contrast, big font</div>
+      </div>
+      <!-- Add more tiles or controls as needed -->
+    </div>
+
+    <!-- Main content area with the video -->
+    <div id="contentArea">
+      <div id="videoContainer">
+        <video id="videoPlayer" controls>
+          Your browser does not support the video tag.
+        </video>
+        <div id="subtitleOverlay">Subtitles appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom footer / controls -->
+  <div id="footer">
+    <button id="openFileBtn">Open Video File</button>
+  </div>
+
+  <!-- Electron script -->
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const openFileBtn = document.getElementById('openFileBtn');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const subtitleOverlay = document.getElementById('subtitleOverlay');
+
+    openFileBtn.addEventListener('click', async () => {
+      const filePath = await ipcRenderer.invoke('open-file-dialog');
+      if (filePath) {
+        videoPlayer.src = filePath;
+      }
+    });
+
+    // Example: dynamic subtitle overlay (if you add real-time or pre-processed subtitles)
+    // This is just a placeholder for now.
+    videoPlayer.addEventListener('timeupdate', () => {
+      // In a real implementation, you'd look up the correct subtitle for videoPlayer.currentTime
+      // For now, let's just display the currentTime for demonstration:
+      subtitleOverlay.textContent = `Time: ${videoPlayer.currentTime.toFixed(1)}s`;
+    });
+  </script>
+</body>
+</html>
